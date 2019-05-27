@@ -52,9 +52,7 @@ class Agent():
         if self.t_step == 0:
             # If enough samples are available in memory, get random subset and learn
             if len(self.memory) > BATCH_SIZE:
-                print("here 1")
                 experiences = self.memory.sample()
-                print("here 2")
                 self.learn(experiences, GAMMA)
 
     def act(self, state, eps=0.):
@@ -65,9 +63,7 @@ class Agent():
             state (array_like): current state
             eps (float): epsilon, for epsilon-greedy action selection
         """
-        print(state.shape)
         state = torch.from_numpy(state).float().unsqueeze(0).to(device)
-        print(state.shape)
         self.qnetwork_local.eval()
         with torch.no_grad():
             action_values = self.qnetwork_local(state)
@@ -91,8 +87,6 @@ class Agent():
 
         # Get max predicted Q values (for next states) from target model
         Q_targets_next = self.qnetwork_target(next_states).detach().max(1)[0].unsqueeze(1)
-        #print(Q_targets_next.shape)
-        #print((1-dones).shape)
         # Compute Q targets for current states 
         Q_targets = rewards + (gamma * Q_targets_next * (1 - dones))
 
@@ -149,17 +143,12 @@ class ReplayBuffer:
     
     def sample(self):
         """Randomly sample a batch of experiences from memory."""
-        print("here 3")
         experiences = random.sample(self.memory, k=self.batch_size)
-        print(len(experiences))
         states = torch.from_numpy(np.vstack([e.state for e in experiences if e is not None])).float().to(device)
         actions = torch.from_numpy(np.vstack([e.action for e in experiences if e is not None])).long().to(device)
         rewards = torch.from_numpy(np.vstack([e.reward for e in experiences if e is not None])).float().to(device)
         next_states = torch.from_numpy(np.vstack([e.next_state for e in experiences if e is not None])).float().to(device)
         dones = torch.from_numpy(np.vstack([e.done for e in experiences if e is not None]).astype(np.uint8)).float().to(device)
-        print(states.shape) 
-        print("here 4")
-        print(next_states.shape) 
         return (states, actions, rewards, next_states, dones)
 
     def __len__(self):
